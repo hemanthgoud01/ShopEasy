@@ -3,9 +3,14 @@ from .models import Product
 
 
 from django.http import HttpResponse
+from .models import Product
 
 def home(request):
-    return HttpResponse("ShopEasy is working!")
+    try:
+        products = Product.objects.all()
+        return HttpResponse(f"Products count: {products.count()}")
+    except Exception as e:
+        return HttpResponse(str(e))
 
 def product_detail(request, product_id):
     product = get_object_or_404(
