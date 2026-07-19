@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">Admin Dashboard</h2>
+
+<div class="row">
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4>{{ total_products }}</h4>
+                Products
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4>{{ total_orders }}</h4>
+                Orders
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4>{{ total_customers }}</h4>
+                Customers
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h4>₹{{ revenue }}</h4>
+                Revenue
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<hr>
+
+<h3>Low Stock Products</h3>
+
+<table class="table">
+
+    <tr>
+
+        <th>Name</th>
+
+        <th>Stock</th>
+
+    </tr>
+
+    {% for product in low_stock %}
+
+    <tr>
+
+        <td>{{ product.name }}</td>
+
+        <td>{{ product.stock }}</td>
+
+    </tr>
+
+    {% empty %}
+
+    <tr>
+
+        <td colspan="2">
+
+            No low-stock products.
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+<hr>
+
+<h3>Recent Orders</h3>
+
+<table class="table">
+
+    <tr>
+
+        <th>ID</th>
+
+        <th>Customer</th>
+
+        <th>Total</th>
+
+        <th>Status</th>
+
+    </tr>
+
+    {% for order in recent_orders %}
+
+    <tr>
+
+        <td>#{{ order.id }}</td>
+
+        <td>{{ order.user.username }}</td>
+
+        <td>₹{{ order.total_amount }}</td>
+
+        <td>{{ order.status }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

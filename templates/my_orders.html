@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>My Orders</h2>
+
+<table class="table">
+
+    <tr>
+
+        <th>ID</th>
+
+        <th>Total</th>
+
+        <th>Status</th>
+
+        <th>Date</th>
+
+        <th></th>
+
+    </tr>
+
+    {% for order in orders %}
+
+    <tr>
+
+        <td>#{{ order.id }}</td>
+
+        <td>₹{{ order.total_amount }}</td>
+
+        <td>{{ order.status }}</td>
+
+        <td>{{ order.created_at }}</td>
+
+        <td>
+
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-primary btn-sm">
+
+                View
+
+            </a>
+
+        </td>
+
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endblock %}

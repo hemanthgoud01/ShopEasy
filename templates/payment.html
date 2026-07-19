@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Pay ₹{{ order.total_amount }}</h2>
+
+<button id="pay-btn" class="btn btn-success">
+    Pay Now
+</button>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+    var options = {
+
+        key: "{{ razorpay_key }}",
+
+        amount: "{{ razorpay_order.amount }}",
+
+        currency: "INR",
+
+        name: "ShopEasy",
+
+        description: "Order Payment",
+
+        order_id: "{{ razorpay_order.id }}",
+
+        handler: function (response) {
+
+            window.location.href =
+                "/payments/success/?payment_id=" +
+                response.razorpay_payment_id +
+                "&order_id=" +
+                response.razorpay_order_id +
+                "&signature=" +
+                response.razorpay_signature;
+
+        }
+
+    };
+
+    var rzp = new Razorpay(options);
+
+    document
+        .getElementById("pay-btn")
+        .onclick = function (e) {
+
+            rzp.open();
+
+            e.preventDefault();
+
+        };
+
+</script>
+
+{% endblock %}
