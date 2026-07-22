@@ -30,3 +30,5 @@ pip install -r requirements.txt
 python manage.py migrate
 
 python manage.py runserver
+
+Demo link-https://shopeasy-lqu2.onrender.com
