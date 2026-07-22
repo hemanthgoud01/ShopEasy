@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
@@ -7,38 +8,30 @@
 <div class="row">
 
     <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4>{{ total_products }}</h4>
-                Products
-            </div>
+        <div class="card text-center p-3 shadow-sm">
+            <h5>Total Users</h5>
+            <h2>{{ total_users }}</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4>{{ total_orders }}</h4>
-                Orders
-            </div>
+        <div class="card text-center p-3 shadow-sm">
+            <h5>Total Products</h5>
+            <h2>{{ total_products }}</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4>{{ total_customers }}</h4>
-                Customers
-            </div>
+        <div class="card text-center p-3 shadow-sm">
+            <h5>Total Orders</h5>
+            <h2>{{ total_orders }}</h2>
         </div>
     </div>
 
     <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <h4>₹{{ revenue }}</h4>
-                Revenue
-            </div>
+        <div class="card text-center p-3 shadow-sm">
+            <h5>Total Revenue</h5>
+            <h2>₹{{ total_revenue }}</h2>
         </div>
     </div>
 
@@ -46,78 +39,136 @@
 
 <hr>
 
-<h3>Low Stock Products</h3>
+<h3>Recent Orders</h3>
 
-<table class="table">
+<table class="table table-bordered">
 
-    <tr>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Amount</th>
+            <th>Status</th>
+        </tr>
+    </thead>
 
-        <th>Name</th>
+    <tbody>
 
-        <th>Stock</th>
+        {% for order in recent_orders %}
 
-    </tr>
+        <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.user.username }}</td>
+            <td>₹{{ order.total_amount }}</td>
+            <td>{{ order.status }}</td>
+        </tr>
 
-    {% for product in low_stock %}
+        {% empty %}
 
-    <tr>
+        <tr>
+            <td colspan="4" class="text-center">No Orders</td>
+        </tr>
 
-        <td>{{ product.name }}</td>
+        {% endfor %}
 
-        <td>{{ product.stock }}</td>
-
-    </tr>
-
-    {% empty %}
-
-    <tr>
-
-        <td colspan="2">
-
-            No low-stock products.
-
-        </td>
-
-    </tr>
-
-    {% endfor %}
+    </tbody>
 
 </table>
 
 <hr>
 
-<h3>Recent Orders</h3>
+<h3>Top Selling Products</h3>
 
-<table class="table">
+<table class="table table-striped">
 
-    <tr>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Units Sold</th>
+        </tr>
+    </thead>
 
-        <th>ID</th>
+    <tbody>
 
-        <th>Customer</th>
+        {% for product in top_products %}
 
-        <th>Total</th>
+        <tr>
+            <td>{{ product.product__name }}</td>
+            <td>{{ product.total_sold }}</td>
+        </tr>
 
-        <th>Status</th>
+        {% empty %}
 
-    </tr>
+        <tr>
+            <td colspan="2" class="text-center">No Sales Yet</td>
+        </tr>
 
-    {% for order in recent_orders %}
+        {% endfor %}
 
-    <tr>
-
-        <td>#{{ order.id }}</td>
-
-        <td>{{ order.user.username }}</td>
-
-        <td>₹{{ order.total_amount }}</td>
-
-        <td>{{ order.status }}</td>
-
-    </tr>
-
-    {% endfor %}
+    </tbody>
 
 </table>
+
+<hr>
+
+<h3>Monthly Sales</h3>
+
+<canvas id="salesChart" height="100"></canvas>
+
+<hr>
+
+<h3>Order Status</h3>
+
+<canvas id="statusChart" height="100"></canvas>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const salesLabels = [
+        {% for item in monthly_sales %}
+    "{{ item.month|date:'M Y' }}"{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+    const salesData = [
+        {% for item in monthly_sales %}
+    { { item.total } } {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+    new Chart(document.getElementById("salesChart"), {
+        type: "bar",
+        data: {
+            labels: salesLabels,
+            datasets: [{
+                label: "Sales",
+                data: salesData
+            }]
+        }
+    });
+
+    const statusLabels = [
+        {% for item in status_counts %}
+    "{{ item.status }}"{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+    const statusData = [
+        {% for item in status_counts %}
+    { { item.count } } {% if not forloop.last %}, {% endif %}
+    {% endfor %}
+];
+
+    new Chart(document.getElementById("statusChart"), {
+        type: "pie",
+        data: {
+            labels: statusLabels,
+            datasets: [{
+                data: statusData
+            }]
+        }
+    });
+</script>
 
 {% endblock %}

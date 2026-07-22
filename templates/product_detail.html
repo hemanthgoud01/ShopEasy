@@ -1,41 +1,154 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
 
 <div class="row">
 
-    <div class="col-md-6">
+    <div class="col-md-5">
 
-        <img src="{{ product.image.url }}" class="img-fluid">
+        <img src="{{ product.image.url }}" class="img-fluid rounded">
 
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-7">
 
         <h2>{{ product.name }}</h2>
 
-        <h4>₹{{ product.price }}</h4>
+        <h4 class="text-success">
+            ₹{{ product.price }}
+        </h4>
 
         <p>{{ product.description }}</p>
 
         <p>
-
-            Stock:
-
-            <strong>
-
-                {{ product.stock }}
-
-            </strong>
-
+            <strong>Stock:</strong>
+            {{ product.stock }}
         </p>
 
+        <h5>
+
+            ⭐ Average Rating :
+
+            {% if average_rating %}
+
+            {{ average_rating|floatformat:1 }}/5
+
+            {% else %}
+
+            No Ratings Yet
+
+            {% endif %}
+
+        </h5>
+
         <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success">
+
             Add to Cart
+
+        </a>
+
+        <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-outline-danger">
+
+            ❤️ Wishlist
+
         </a>
 
     </div>
 
 </div>
+
+<hr>
+
+<h3>Write a Review</h3>
+
+{% if user.is_authenticated %}
+
+<form method="POST" action="{% url 'add_review' product.id %}">
+
+    {% csrf_token %}
+
+    <div class="mb-3">
+
+        <label>Rating</label>
+
+        <select name="rating" class="form-select" required>
+
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+
+        </select>
+
+    </div>
+
+    <div class="mb-3">
+
+        <label>Comment</label>
+
+        <textarea name="comment" class="form-control" rows="4" required></textarea>
+
+    </div>
+
+    <button class="btn btn-primary">
+
+        Submit Review
+
+    </button>
+
+</form>
+
+{% else %}
+
+<div class="alert alert-info">
+
+    Please login to write a review.
+
+</div>
+
+{% endif %}
+
+<hr>
+
+<h3>Customer Reviews</h3>
+
+{% for review in reviews %}
+
+<div class="card mb-3">
+
+    <div class="card-body">
+
+        <h5>{{ review.user.username }}</h5>
+
+        <p>
+
+            Rating :
+
+            {% for i in "12345" %}
+
+            {% if forloop.counter <= review.rating %} ⭐ {% else %} ☆ {% endif %} {% endfor %} </p>
+
+                <p>{{ review.comment }}</p>
+
+                <small class="text-muted">
+
+                    {{ review.created_at }}
+
+                </small>
+
+    </div>
+
+</div>
+
+{% empty %}
+
+<div class="alert alert-warning">
+
+    No reviews yet.
+
+</div>
+
+{% endfor %}
 
 {% endblock %}

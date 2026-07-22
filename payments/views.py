@@ -2,6 +2,7 @@ import razorpay
 
 from django.conf import settings
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 
 from orders.models import Order
 from .models import Payment
@@ -16,7 +17,7 @@ client = razorpay.Client(
     )
 )
 
-
+@login_required
 def make_payment(request, order_id):
 
     order = get_object_or_404(
@@ -51,22 +52,66 @@ def make_payment(request, order_id):
         context,
     )
 
+
+@login_required
 def payment_success(request):
 
     payment = Payment.objects.get(
         razorpay_order_id=request.GET["order_id"]
     )
 
-    payment.razorpay_payment_id = request.GET["payment_id"]
+    params = {
+        "razorpay_order_id": request.GET["order_id"],
+        "razorpay_payment_id": request.GET["payment_id"],
+        "razorpay_signature": request.GET["signature"],
+    }
 
-    payment.razorpay_signature = request.GET["signature"]
+    try:
+        # Verify payment signature
+        client.utility.verify_payment_signature(params)
 
-    payment.status = "Paid"
+        payment.razorpay_payment_id = params["razorpay_payment_id"]
+        payment.razorpay_signature = params["razorpay_signature"]
+        payment.status = "Paid"
+        payment.save()
 
-    payment.save()
+        payment.order.status = "Processing"
+        payment.order.save()
 
-    payment.order.status = "Processing"
+        # Reduce stock after successful payment
+        for item in payment.order.items.all():
+            item.product.stock -= item.quantity
+            item.product.save()
 
-    payment.order.save()
+        # Clear user's cart
+        cart = Cart.objects.filter(user=request.user).first()
 
-    return redirect("my_orders")
+        if cart:
+            cart.items.all().delete()
+
+        return render(
+            request,
+            "payment_success.html",
+            {
+                 "order": payment.order,
+                "payment": payment,
+            }
+        )
+
+    except razorpay.errors.SignatureVerificationError:
+
+        payment.status = "Failed"
+        payment.save()
+
+        return render(
+            request,
+            "payment_failed.html",
+            {
+                "message": "Payment verification failed."
+            }
+        )
+    
+
+@login_required
+def payment_failed(request):
+    return render(request, "payment_failed.html")

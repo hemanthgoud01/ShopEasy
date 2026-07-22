@@ -4,6 +4,38 @@
 
 <h2 class="mb-4">Latest Products</h2>
 
+<form method="GET" class="row mb-4">
+
+    <div class="col-md-5">
+        <input type="text" name="search" class="form-control" placeholder="Search products..."
+            value="{{ request.GET.search }}">
+    </div>
+
+    <div class="col-md-4">
+
+        <select name="category" class="form-select">
+            <option value="">All Categories</option>
+
+            {% for category in categories %}
+                <option value="{{ category.id }}"
+                    {% if selected_category == category.id %}
+                        selected
+                    {% endif %}>
+                    {{ category.name }}
+                </option>
+            {% endfor %}
+        </select>
+
+    </div>
+
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100">
+            Search
+        </button>
+    </div>
+
+</form>
+
 <div class="row">
 
     {% for product in products %}
@@ -24,10 +56,22 @@
                     View
                 </a>
 
+                <a href="{% url 'add_to_wishlist' product.id %}" class="btn btn-outline-danger">
+                    ❤️ Wishlist
+                </a>
+
             </div>
 
         </div>
 
+    </div>
+
+    {% empty %}
+
+    <div class="col-12">
+        <div class="alert alert-warning">
+            No products found.
+        </div>
     </div>
 
     {% endfor %}
