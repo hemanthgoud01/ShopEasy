@@ -17,8 +17,19 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+)
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -28,16 +39,13 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG=True
@@ -107,7 +115,6 @@ import os
 import dj_database_url
 
 if os.environ.get("DATABASE_URL"):
-    # Render PostgreSQL
     DATABASES = {
         "default": dj_database_url.config(
             conn_max_age=600,
@@ -115,15 +122,14 @@ if os.environ.get("DATABASE_URL"):
         )
     }
 else:
-    # Local MySQL
     DATABASES = {
         "default": {
-            "ENGINE": "django.db.backends.mysql",
+            "ENGINE": "django.db.backends.postgresql",
             "NAME": "shopeasy_db",
-            "USER": "root",
+            "USER": "postgres",
             "PASSWORD": "0112",
             "HOST": "localhost",
-            "PORT": "3306",
+            "PORT": "5433",
         }
     }
 

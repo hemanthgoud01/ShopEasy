@@ -28,9 +28,7 @@ class Product(models.Model):
 
     stock = models.PositiveIntegerField()
 
-    image = models.ImageField(
-        upload_to='products/'
-    )
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
 
     created_at = models.DateTimeField(
         auto_now_add=True
